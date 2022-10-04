@@ -76,7 +76,7 @@ def createPRSummary
             end
         end
     end
-    
+    @logger.info("Summary: #{comment}")
     system('echo "#{comment}" >> "$GITHUB_STEP_SUMMARY"')
 end
 
