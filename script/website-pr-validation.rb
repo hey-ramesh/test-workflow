@@ -77,7 +77,7 @@ def createPRSummary
         end
     end
     @logger.info("Summary: #{comment}")
-    system("echo \"#{comment}\" >> \"$GITHUB_STEP_SUMMARY\"")
+    system("echo \"#{comment}\" >> \"$GITHUB_STEP_SUMMARY\"".to_s)
 end
 
 # Function for fetching the details of a maintainer
