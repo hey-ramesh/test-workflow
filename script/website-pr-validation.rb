@@ -77,7 +77,7 @@ def createPRSummary
         end
     end
     
-    system('echo #{comment} >> "$GITHUB_STEP_SUMMARY"')
+    system('echo "#{comment}" >> "$GITHUB_STEP_SUMMARY"')
 end
 
 # Function for fetching the details of a maintainer
