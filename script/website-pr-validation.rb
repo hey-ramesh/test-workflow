@@ -205,42 +205,6 @@ def checkProjectsData(fileName)
     end
 end
 
-# Check if any new maintainer is added
-# If yes -> Add the maintainer as reviewer
-def checkMaintainersFileChanged
-    maintainersListPR = JSON.parse(YAML.load(File.open("#{BASE_PATH}/maintainers.yml"), :safe => true).to_json)
-    maintainersList = JSON.parse(YAML.load(File.open("india-main/#{BASE_PATH}/maintainers.yml"), :safe => true).to_json)
-    maintainersMain = []
-    maintainersPR = []
-    for maintainers in maintainersList.values do
-        maintainersMain += maintainers
-    end
-    for maintainers in maintainersListPR.values do
-        maintainersPR += maintainers
-    end
-    newMaintainers = maintainersPR - maintainersMain
-    pullRequestDetails = CLIENT.pull_request(REPOSITORY, PR_ID)
-    newMaintainers.delete(pullRequestDetails.user.login)
-    if newMaintainers.length() > 10
-        @logger.info("More than 10 maintainers added")
-        CLIENT.add_comment(REPOSITORY, PR_ID, "Cannot add more than 10 maintainers in a single PR")
-        exit(1)
-    end
-    if newMaintainers.length() != 0
-        begin
-            CLIENT.request_pull_request_review(REPOSITORY, PR_ID, reviewers: newMaintainers)
-        rescue => e
-            # PR author cannot add himself as reviewer
-            if e.response_status == 422
-                @logger.info("PR author cannot be the reviewer")
-            else
-                @logger.info("ERROR STATUS: #{e.response_status}")
-                @logger.info("An error of type #{e.class} happened, message is #{e.message}")
-            end
-        end
-    end
-end
-
 @logger.info("-------------------------------")
 @logger.info("Checking Maintainers...")
 checkMaintainersData()
@@ -261,6 +225,3 @@ if MAINTAINERS_FAILED_VALIDATION.length() != 0 || OSSPROJECTS_FAILED_VALIDATION.
     exit(1)
 end
 @logger.info("-------------------------------")
-
-# Check if the changes are present in maintainers file
-checkMaintainersFileChanged()
