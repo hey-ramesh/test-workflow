@@ -77,7 +77,7 @@ def createPRSummary
         end
     end
     @logger.info("Summary: #{comment}")
-    system("echo '" + comment + "' >> \"$GITHUB_STEP_SUMMARY\"")
+    File.write(ENV["GITHUB_STEP_SUMMARY"], comment)
 end
 
 # Function for fetching the details of a maintainer
