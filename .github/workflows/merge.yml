@@ -1,30 +1,17 @@
 name: Merge
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types:
+      - closed
     paths:
       - "website/**"
 jobs:
   merged:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-      - uses: jwalton/gh-find-current-pr@v1
-        id: findPr
+      - run: |
+          echo '{"pr_number": "${{ steps.findPr.outputs.number }}", "creator_username": "${{ github.event.pull_request.user.login  }}" }' >> pr_creator.json
+      - name: Upload artifact
+        uses: actions/upload-artifacts@v3.1.0
         with:
-          # Can be "open", "closed", or "all".  Defaults to "open".
-          state: closed
-      # This will echo "Your PR is 7", or be skipped if there is no current PR.
-      - run: echo "Your PR is ${PR}"
-        if: success() && steps.findPr.outputs.number
-        env:
-          PR: ${{ steps.findPr.outputs.pr }}
-      - name: Trigger build
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: Trigger build
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repo: ${{ secrets.INDIA_REPO_NWO }}
-          inputs: '{"pr_number": "${{ steps.findPr.outputs.number }}", "creator_username": "${{ github.event.pull_request.user.login  }}" }'
+          name: pr_creator_data
