@@ -10,8 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo '{"pr_number": "${{ steps.findPr.outputs.number }}", "creator_username": "${{ github.event.pull_request.user.login  }}" }' >> pr_creator.json
+          mkdir -p data
+          echo '{"pr_number": "${{ steps.findPr.outputs.number }}", "creator_username": "${{ github.event.pull_request.user.login  }}" }' >> ./data/pr_creator.json
       - name: Upload artifact
         uses: actions/upload-artifact@v3.1.0
         with:
           name: pr_creator_data
+          path: data/
