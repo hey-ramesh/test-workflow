@@ -1,23 +1,30 @@
 name: Trigger build
 on:
-  pull_request:
-    types:
-      - closed
+  push:
+    branches:
+      - main
     paths:
       - "website/**"
 jobs:
-  if_merged:
-    if: github.event.pull_request.merged == true
-    environment: trigger
+  merged:
     runs-on: ubuntu-latest
     steps:
-      - name: Can access secrets?
-        run: |
-          echo ${{ secrets.TEST }}
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - uses: jwalton/gh-find-current-pr@v1
+        id: findPr
+        with:
+          # Can be "open", "closed", or "all".  Defaults to "open".
+          state: closed
+      # This will echo "Your PR is 7", or be skipped if there is no current PR.
+      - run: echo "Your PR is ${PR}"
+        if: success() && steps.findPr.outputs.number
+        env:
+          PR: ${{ steps.findPr.outputs.pr }}
       - name: Trigger build
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Trigger build
           token: ${{ secrets.GITHUB_TOKEN }}
           repo: ${{ secrets.INDIA_REPO_NWO }}
-          inputs: '{"pr_number": "${{ github.event.number }}", "creator_username": "${{ github.event.pull_request.user.login  }}" }'
+          inputs: '{"pr_number": "${{ steps.findPr.outputs.number }}", "creator_username": "${{ github.event.pull_request.user.login  }}" }'
