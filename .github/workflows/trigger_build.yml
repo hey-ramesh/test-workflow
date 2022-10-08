@@ -1,22 +1,34 @@
 name: Trigger build
 on:
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: "Number of the PR which triggered this action"
-        required: true
-      creator_username:
-        description: "Username of the PR creator"
-        required: true
+  workflow_run:
+    workflows:
+      - Merge
+    types:
+      - completed
+
 jobs:
-  if_merged:
-    if: github.event.pull_request.merged == true
+  trigger:
     runs-on: ubuntu-latest
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: pr_creator_data
+      - name: Display pr_creator.json
+        run: |
+          cat ./pr_creator.json
+      - name: Set PR_CREATOR env
+        run: |
+          echo 'PR_CREATOR<<EOF' >> $GITHUB_ENV
+          cat ./pr_creator.json >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+      - name: Get PR_CREATOR env
+        run: |
+          echo '${{ fromJson(env.PR_CREATOR).pr_number }}'
       - name: Trigger build
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Trigger build when public PR is merged
           token: ${{ secrets.PAT }}
           repo: ${{ secrets.GITHUBINDIA_REPO_NWO }}
-          inputs: '{"pr_number": "${{ github.event.number }}", "creator_username": "${{ github.event.pull_request.user.login  }}" }'
+          inputs: '{"pr_number": "${{ fromJson(env.PR_CREATOR).pr_number }}", "creator_username": "${{ fromJson(env.PR_CREATOR).creator_username }}" }'
