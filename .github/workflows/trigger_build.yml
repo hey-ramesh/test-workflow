@@ -14,9 +14,8 @@ jobs:
         uses: actions/download-artifact@v3.0.0
         with:
           name: pr_creator_data
-      - name: Display pr_creator.json
-        run: |
-          cat ./pr_creator.json
+      - name: Test artifact
+        run: ls -R
       - name: Set PR_CREATOR env
         run: |
           echo 'PR_CREATOR<<EOF' >> $GITHUB_ENV
