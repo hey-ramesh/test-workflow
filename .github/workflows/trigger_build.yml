@@ -1,0 +1,22 @@
+name: Trigger build
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Number of the PR which triggered this action"
+        required: true
+      creator_username:
+        description: "Username of the PR creator"
+        required: true
+jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger build
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Trigger build when public PR is merged
+          token: ${{ secrets.PAT }}
+          repo: ${{ secrets.GITHUBINDIA_REPO_NWO }}
+          inputs: '{"pr_number": "${{ github.event.number }}", "creator_username": "${{ github.event.pull_request.user.login  }}" }'
