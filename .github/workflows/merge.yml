@@ -8,6 +8,7 @@ on:
 jobs:
   if_merged:
     if: github.event.pull_request.merged == true
+    environment: trigger
     runs-on: ubuntu-latest
     steps:
       - name: Can access secrets?
