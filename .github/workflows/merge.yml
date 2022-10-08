@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Can access secrets?
         run: |
-          echo ${{ secrets.test }}
+          echo ${{ secrets.TEST }}
       - name: Trigger build
         uses: benc-uk/workflow-dispatch@v1
         with:
